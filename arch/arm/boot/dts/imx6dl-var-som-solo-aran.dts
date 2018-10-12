@@ -1,0 +1,252 @@
+/*
+ * Copyright (C) 2018 Aran R&D (1982) Ltd.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
+#include "imx6dl-var-som-solo.dtsi"
+
+/ {
+	model = "Variscite i.MX6 DL/Solo SOM-SOLO SOM-DUAL ARAN Carrier 44700 Board";
+};
+
+/* Display BEGIN */
+&ldb {
+	status = "okay";
+
+	lvds-channel@0 {
+		fsl,data-mapping = "spwg";
+		fsl,data-width = <24>;
+		crtc = "ipu1-di0";
+		primary;
+		status = "okay";
+
+		display-timings {
+			native-mode = <&timing0>;
+			timing0: hsd100pxn1 {
+				clock-frequency = <35714000>;
+				hactive = <800>;
+				vactive = <480>;
+				hback-porch = <46>;
+				hfront-porch = <16>;
+				vback-porch = <23>;
+				vfront-porch = <7>;
+				hsync-len = <1>;
+				vsync-len = <3>;
+			};
+		};
+	};
+
+	lvds-channel@1 {
+		status = "disabled";
+	};
+};
+
+&mxcfb1 {
+	interface_pix_fmt = "RGB24";
+};
+/* Display END */
+
+/* Touch ili2117, Buzzer, IO expander, temperature sensor BEGIN */
+&pinctrl_hog {
+	fsl,pins = <
+		/* touch irq */
+		MX6QDL_PAD_DISP0_DAT23__GPIO5_IO17	0x178b0
+		/* buzzer */
+		MX6QDL_PAD_CSI0_DATA_EN__GPIO5_IO20	0x1b0b1
+		/* IO expander irq */
+		MX6QDL_PAD_KEY_COL1__GPIO4_IO08	0x178b0
+	>;
+};
+
+&i2c2 {
+	/* IO Expander */
+	mcp23017@20 {
+        compatible = "microchip,mcp23017";
+        gpio-controller;
+        #gpio-cells = <2>;
+        reg = <0x20>;
+
+        interrupt-parent = <&gpio4>;
+        interrupts = <8 IRQ_TYPE_LEVEL_LOW>;
+        interrupt-controller;
+        #interrupt-cells=<2>;
+        microchip,irq-mirror;
+	};
+
+	/* temperature sensor */
+	lm75b@48 {
+        compatible = "national,lm75b";
+        reg = <0x48>;
+	};
+};
+
+&i2c3 {
+	/* touch */
+	ili2117@26 {
+		compatible = "ili2117";
+		reg = <0x26>;
+		gpios = <&gpio5 17 GPIO_ACTIVE_LOW>;
+		interrupt-parent = <&gpio5>;
+		interrupts = <17 IRQ_TYPE_EDGE_RISING>;
+	};
+};
+/* Touch ili2117, Buzzer, IO expander, temperature sensor END */
+
+/* UARTs and PWMs BEGIN */
+&iomuxc {
+	imx6qdl-var-som-mx6 {
+		pinctrl_uart4_1: uart4grp-1 {	/* RX/TX, RTS gpio */
+			fsl,pins = <
+                MX6QDL_PAD_KEY_COL0__UART4_TX_DATA	0x1b0b1
+                MX6QDL_PAD_KEY_ROW0__UART4_RX_DATA	0x1b0b1
+				MX6QDL_PAD_CSI0_DAT17__GPIO6_IO03	0x1b0b1
+			>;
+		};
+
+        pinctrl_pwm1_1: pwm1grp {
+			fsl,pins = <
+				MX6QDL_PAD_GPIO_9__PWM1_OUT	0x1b0b1
+			>;
+		};
+
+        pinctrl_pwm3_1: pwm3grp {
+			fsl,pins = <
+				MX6QDL_PAD_SD4_DAT1__PWM3_OUT	0x1b0b1
+			>;
+		};
+    };
+};
+
+&uart4 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart4_1>;
+	rts-gpios = <&gpio6 3 GPIO_ACTIVE_HIGH>;
+	rs485-rts-active-high;
+	linux,rs485-enabled-at-boot-time;
+	status = "okay";
+};
+
+&pwm1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_pwm1_1>;
+	status = "okay";
+};
+
+&pwm3 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_pwm3_1>;
+	status = "okay";
+};
+/* UARTs and PWMs END */
+
+/* Misc settings BEGIN */
+&iomuxc {
+	imx6qdl-var-som-mx6 {
+		pinctrl_usbotg_1: usbotggrp-1 {
+			fsl,pins = <
+				MX6QDL_PAD_GPIO_1__USB_OTG_ID		0x17059
+			>;
+		};
+	};
+};
+
+&reg_usb_h1_vbus {
+	gpio = <&gpio4 15 0>;
+	enable-active-high;
+};
+
+&reg_usb_otg_vbus {
+	gpio = <&gpio3 22 0>;
+	enable-active-high;
+};
+
+&usbotg {
+	pinctrl-0 = <&pinctrl_usbotg_1>;
+	dr_mode = "otg"; /* Use "host" if you would like to use the USB0 type A connector */
+};
+
+&usdhc2 {	/* uSDHC2, MMC/SD card */
+	wp-gpios = <>;
+	status = "disabled";
+};
+/* Misc settings END */
+
+/* Disable unused devices BEGIN */
+&uart2 {
+	status = "disabled";
+};
+
+&can1 {
+	status = "disabled";
+};
+
+/ {
+	sound {
+		status = "disabled";
+	};
+
+	sound-hdmi {
+		status = "disabled";
+	};
+
+	v4l2_cap_0 {
+		status = "disabled";
+	};
+
+	v4l2_out {
+		status = "disabled";
+	};
+};
+
+&hdmi_audio {
+	status = "disabled";
+};
+
+&hdmi_cec {
+	status = "disabled";
+};
+
+&hdmi_core {
+	status = "disabled";
+};
+
+&hdmi_video {
+	status = "disabled";
+};
+
+&i2c1 {
+	status = "disabled";
+};
+
+&mipi_csi {
+	status = "disabled";
+};
+
+&pcie {
+	status = "disabled";
+};
+
+&ssi2 {
+	status = "disabled";
+};
+
+&audmux {
+    status = "disabled";
+};
+
+&dcic1 {
+	status = "disabled";
+};
+
+&dcic2 {
+	status = "disabled";
+};
+
+&snvs_poweroff {
+	status = "disabled";
+};
+
+/* Disable unused devices END */
