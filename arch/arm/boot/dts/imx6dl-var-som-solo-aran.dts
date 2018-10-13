@@ -52,6 +52,15 @@
 /* Touch ili2117, Buzzer, IO expander, temperature sensor BEGIN */
 &pinctrl_hog {
 	fsl,pins = <
+		/* for Bluetooth/wifi enable */
+		MX6QDL_PAD_SD3_DAT6__GPIO6_IO18		0x1b0b1
+		/* SDMMC2 CD/WP */
+		MX6QDL_PAD_KEY_COL4__GPIO4_IO14		0x80000000
+		MX6QDL_PAD_KEY_ROW4__GPIO4_IO15		0x80000000
+		/* PMIC INT */
+		MX6QDL_PAD_GPIO_17__GPIO7_IO12		0x80000000
+		/* Wifi Slow Clock */
+		MX6QDL_PAD_ENET_RXD0__OSC32K_32K_OUT	0x000b0
 		/* touch irq */
 		MX6QDL_PAD_DISP0_DAT23__GPIO5_IO17	0x178b0
 		/* buzzer */
@@ -175,10 +184,6 @@
 /* Misc settings END */
 
 /* Disable unused devices BEGIN */
-&uart2 {
-	status = "disabled";
-};
-
 &can1 {
 	status = "disabled";
 };
