@@ -179,7 +179,6 @@
 
 &usdhc2 {	/* uSDHC2, MMC/SD card */
 	wp-gpios = <>;
-	status = "disabled";
 };
 /* Misc settings END */
 
